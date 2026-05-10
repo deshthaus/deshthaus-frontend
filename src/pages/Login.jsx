@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [err, setErr] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,10 +14,10 @@ export default function Login() {
     e.preventDefault()
     setErr(''); setLoading(true)
     try {
-      await login(email, password)
+      await login(name, password)
       navigate('/')
     } catch (ex) {
-      setErr(ex.response?.data?.error || 'Неверный email или пароль')
+      setErr(ex.response?.data?.error || 'Неверное имя или пароль')
     } finally { setLoading(false) }
   }
 
@@ -29,12 +29,24 @@ export default function Login() {
         {err && <div className="login-err">{err}</div>}
         <form onSubmit={submit}>
           <div className="fg">
-            <label>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required />
+            <label>Имя</label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Ануар"
+              required
+            />
           </div>
           <div className="fg">
             <label>Пароль</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
           </div>
           <button className="btn" style={{ width: '100%', justifyContent: 'center', marginTop: 4 }} disabled={loading}>
             {loading ? 'Вход...' : 'Войти'}

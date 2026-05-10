@@ -8,8 +8,11 @@ export function AuthProvider({ children }) {
     try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
   });
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
+  const token = localStorage.getItem('token');
+  if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+  const login = async (name, password) => {
+    const { data } = await api.post('/auth/login', { name, password });
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
@@ -23,10 +26,6 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
   };
-
-  // Set token on init
-  const token = localStorage.getItem('token');
-  if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   return <AuthCtx.Provider value={{ user, login, logout }}>{children}</AuthCtx.Provider>;
 }

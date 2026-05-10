@@ -6,7 +6,7 @@ export default function Team() {
   const { user } = useAuth()
   const [members, setMembers] = useState([])
   const [modal, setModal] = useState(null)
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'member' })
+  const [form, setForm] = useState({ name: '', password: '', role: 'member' })
   const [err, setErr] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
@@ -29,7 +29,7 @@ export default function Team() {
         await api.put(`/auth/users/${modal.id}`, form)
         showToast('Сохранено')
       }
-      setModal(null); setForm({ name: '', email: '', password: '', role: 'member' }); load()
+      setModal(null); setForm({ name: '', password: '', role: 'member' }); load()
     } catch (e) { setErr(e.response?.data?.error || 'Ошибка') }
     setLoading(false)
   }
@@ -41,7 +41,7 @@ export default function Team() {
   }
 
   function openEdit(m) {
-    setForm({ name: m.name, email: m.email, password: '', role: m.role })
+    setForm({ name: m.name, password: '', role: m.role })
     setModal(m); setErr('')
   }
 
@@ -54,26 +54,22 @@ export default function Team() {
   return (
     <div style={{ maxWidth: 560 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-        <button className="btn" onClick={() => { setModal('add'); setForm({ name: '', email: '', password: '', role: 'member' }); setErr('') }}>
-          <i className="ti ti-plus" /> Добавить
+        <button className="btn" onClick={() => { setModal('add'); setForm({ name: '', password: '', role: 'member' }); setErr('') }}>
+          <i className="ti ti-plus" /> Добавить сотрудника
         </button>
       </div>
-
       <div className="panel">
         {members.map(m => (
           <div key={m.id} className="pr">
-            <div className="av" style={{ width: 36, height: 36, background: m.role === 'admin' ? 'var(--red)' : 'var(--navy)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#fff' }}>
+            <div style={{ width: 36, height: 36, background: m.role === 'admin' ? 'var(--red)' : 'var(--navy)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#fff' }}>
               {m.name.slice(0, 2).toUpperCase()}
             </div>
             <div className="pi">
               <div className="pn">{m.name} {m.id === user.id && <span style={{ fontSize: 10, color: 'var(--muted)' }}>(вы)</span>}</div>
-              <div className="pcl">{m.email}</div>
+              <div className="pcl">{m.role === 'admin' ? 'Администратор' : 'Сотрудник'}</div>
             </div>
-            <span className={`ps-tag ${m.role === 'admin' ? 'st-d' : 'st-p'}`}>
-              {m.role === 'admin' ? 'Администратор' : 'Сотрудник'}
-            </span>
             <button className="btn-sec" style={{ padding: '4px 8px', fontSize: 11 }} onClick={() => openEdit(m)}>
-              <i className="ti ti-pencil" />
+              <i className="ti ti-pencil" /> Изменить
             </button>
             {m.id !== user.id && (
               <button className="btn-danger" style={{ padding: '4px 8px', fontSize: 11 }} onClick={() => del(m.id, m.name)}>
@@ -82,23 +78,22 @@ export default function Team() {
             )}
           </div>
         ))}
-        {members.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>Нет пользователей</div>}
+        {members.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>Нет сотрудников</div>}
       </div>
 
       {modal && (
         <div className="modal-bg" onClick={e => e.target === e.currentTarget && setModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="mh">
-              <div className="mh-title">{modal === 'add' ? 'Новый пользователь' : 'Редактировать'}</div>
+              <div className="mh-title">{modal === 'add' ? 'Новый сотрудник' : 'Редактировать'}</div>
               <button className="mclose" onClick={() => setModal(null)}><i className="ti ti-x" /></button>
             </div>
             <div className="mb">
               {err && <div style={{ background: '#fdeaea', color: 'var(--red)', padding: '8px 12px', fontSize: 12, marginBottom: 12 }}>{err}</div>}
-              <div className="fg"><label>Имя *</label><input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ануар Дешт" /></div>
-              <div className="fg"><label>Email *</label><input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="name@deshthaus.kz" /></div>
+              <div className="fg"><label>Имя *</label><input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ануар" /></div>
               <div className="fg">
                 <label>{modal === 'add' ? 'Пароль *' : 'Новый пароль (оставьте пустым чтобы не менять)'}</label>
-                <input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Минимум 6 символов" />
+                <input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Минимум 4 символа" />
               </div>
               <div className="fg"><label>Роль</label>
                 <select value={form.role} onChange={e => set('role', e.target.value)}>
@@ -114,7 +109,6 @@ export default function Team() {
           </div>
         </div>
       )}
-
       {toast && <div className="toast show ok">{toast}</div>}
     </div>
   )
