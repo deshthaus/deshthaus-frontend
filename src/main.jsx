@@ -13,6 +13,7 @@ import Finance from './pages/Finance'
 import Pipeline from './pages/Pipeline'
 import Calendar from './pages/Calendar'
 import Profile from './pages/Profile'
+import Team from './pages/Team'
 import './index.css'
 
 function Guard({ children }) {
@@ -36,6 +37,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="pipeline" element={<Pipeline />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="team" element={<Team />} />
           </Route>
         </Routes>
       </BrowserRouter>

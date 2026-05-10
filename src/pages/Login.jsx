@@ -17,7 +17,7 @@ export default function Login() {
       await login(email, password)
       navigate('/')
     } catch (ex) {
-      setErr(ex.response?.data?.error || 'Ошибка входа')
+      setErr(ex.response?.data?.error || 'Неверный email или пароль')
     } finally { setLoading(false) }
   }
 
@@ -28,15 +28,18 @@ export default function Login() {
         <div className="login-sub">ARCHITECTS · CRM</div>
         {err && <div className="login-err">{err}</div>}
         <form onSubmit={submit}>
-          <div className="fg"><label>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@deshthaus.kz" required /></div>
-          <div className="fg"><label>Пароль</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required /></div>
+          <div className="fg">
+            <label>Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required />
+          </div>
+          <div className="fg">
+            <label>Пароль</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
+          </div>
           <button className="btn" style={{ width: '100%', justifyContent: 'center', marginTop: 4 }} disabled={loading}>
             {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
-        <div style={{ marginTop: 14, fontSize: 11, color: 'var(--muted)', textAlign: 'center' }}>
-          admin@deshthaus.kz / admin123
-        </div>
       </div>
     </div>
   )

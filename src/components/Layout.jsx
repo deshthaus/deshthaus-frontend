@@ -9,14 +9,15 @@ const NAV = [
   { to: '/projects', label: 'Проекты', icon: 'ti-building', badge: 'proj' },
   { to: '/clients', label: 'Клиенты', icon: 'ti-users' },
   { to: '/files', label: 'Файлы', icon: 'ti-folder' },
-  { to: '/calendar', label: 'Календарь', icon: 'ti-calendar', section: null },
+  { to: '/calendar', label: 'Календарь', icon: 'ti-calendar' },
   { to: '/pipeline', label: 'Воронка', icon: 'ti-chart-dots', section: 'Продажи' },
   { to: '/finance', label: 'Финансы', icon: 'ti-coin' },
   { to: '/tasks', label: 'Задачи', icon: 'ti-checkbox', section: 'Задачи', badge: 'tasks' },
-  { to: '/profile', label: 'Профиль', icon: 'ti-user', section: 'Аккаунт' },
+  { to: '/team', label: 'Команда', icon: 'ti-users-group', section: 'Аккаунт', adminOnly: true },
+  { to: '/profile', label: 'Профиль', icon: 'ti-user' },
 ]
-const TITLES = { '/profile': 'Профиль', '/': 'Дашборд', '/projects': 'Проекты', '/clients': 'Клиенты', '/files': 'Файлы', '/calendar': 'Календарь', '/pipeline': 'Воронка', '/finance': 'Финансы', '/tasks': 'Задачи' }
-const ADD_LABELS = { '/': 'Новый проект', '/projects': 'Новый проект', '/clients': 'Новый клиент', '/tasks': 'Новая задача', '/pipeline': 'Новая сделка', '/finance': 'Транзакция', '/files': 'Загрузить', '/calendar': 'Событие' }
+const TITLES = { '/': 'Дашборд', '/projects': 'Проекты', '/clients': 'Клиенты', '/files': 'Файлы', '/calendar': 'Календарь', '/pipeline': 'Воронка', '/finance': 'Финансы', '/tasks': 'Задачи', '/team': 'Команда', '/profile': 'Профиль' }
+const ADD_LABELS = { '/': 'Новый проект', '/projects': 'Новый проект', '/clients': 'Новый клиент', '/tasks': 'Новая задача', '/pipeline': 'Новая сделка', '/finance': 'Транзакция' }
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -30,9 +31,7 @@ export default function Layout() {
   const [showSearch, setShowSearch] = useState(false)
   const [modal, setModal] = useState(null)
   const [badges, setBadges] = useState({ proj: 0, tasks: 0 })
-  const searchRef = useRef()
   const toastRef = useRef()
-
   const path = location.pathname
 
   useEffect(() => { loadNotifs(); loadBadges() }, [])
@@ -47,7 +46,6 @@ export default function Layout() {
     } catch {}
   }
 
-  // Search
   useEffect(() => {
     if (!searchQ.trim()) { setSearchRes([]); return }
     const q = searchQ.toLowerCase()
@@ -68,7 +66,7 @@ export default function Layout() {
 
   async function readNotif(id) {
     await api.patch(`/notifications/${id}/read`)
-    setNotifs(n => n.map(x => x.id === id ? { ...x, unread: 0 } : x))
+    setNotifs(n => n.map(x => x.id === id ? { ...x, unread: false } : x))
   }
 
   function showToast(msg, type = '') {
@@ -79,20 +77,14 @@ export default function Layout() {
   }
 
   function openAdd() {
-    const p = path
-    if (p === '/files') { document.getElementById('main-file-input')?.click(); return }
-    const forms = {
-      '/projects': 'project', '/': 'project',
-      '/clients': 'client',
-      '/tasks': 'task',
-      '/pipeline': 'deal',
-      '/finance': 'finance',
-    }
-    const type = forms[p] || 'project'
-    setModal({ type, onSave: () => { setModal(null); loadBadges(); showToast('Сохранено', 'ok') } })
+    const forms = { '/projects': 'project', '/': 'project', '/clients': 'client', '/tasks': 'task', '/pipeline': 'deal', '/finance': 'finance' }
+    const type = forms[path]
+    if (!type) { if (path === '/files') { document.getElementById('main-file-input')?.click(); return } return }
+    setModal({ type, onSaved: () => { setModal(null); loadBadges(); showToast('Сохранено', 'ok') } })
   }
 
   const unread = notifs.filter(n => n.unread).length
+  const visibleNav = NAV.filter(item => !item.adminOnly || user?.role === 'admin')
 
   return (
     <div className="app">
@@ -103,15 +95,10 @@ export default function Layout() {
           <div className="logo-sub">ARCHITECTS · CRM</div>
         </div>
         <nav className="nav">
-          {NAV.map((item, i) => (
+          {visibleNav.map((item) => (
             <div key={item.to}>
               {item.section && <div className="ns">{item.section}</div>}
-              <NavLink
-                to={item.to}
-                end={item.to === '/'}
-                className={({ isActive }) => 'ni' + (isActive ? ' active' : '')}
-                onClick={() => setSidebarOpen(false)}
-              >
+              <NavLink to={item.to} end={item.to === '/'} className={({ isActive }) => 'ni' + (isActive ? ' active' : '')} onClick={() => setSidebarOpen(false)}>
                 <i className={`ti ${item.icon}`} />
                 {item.label}
                 {item.badge && badges[item.badge] > 0 && <span className="nb">{badges[item.badge]}</span>}
@@ -134,16 +121,10 @@ export default function Layout() {
         <div className="topbar">
           <button className="menu-btn" onClick={() => setSidebarOpen(v => !v)}><i className="ti ti-menu-2" /></button>
           <div className="tb-title">{TITLES[path] || 'CRM'}</div>
-          <div className="search-wrap" ref={searchRef}>
+          <div className="search-wrap">
             <div className="search-box">
               <i className="ti ti-search" />
-              <input
-                value={searchQ}
-                onChange={e => { setSearchQ(e.target.value); setShowSearch(true) }}
-                onFocus={() => setShowSearch(true)}
-                onBlur={() => setTimeout(() => setShowSearch(false), 200)}
-                placeholder="Поиск..."
-              />
+              <input value={searchQ} onChange={e => { setSearchQ(e.target.value); setShowSearch(true) }} onFocus={() => setShowSearch(true)} onBlur={() => setTimeout(() => setShowSearch(false), 200)} placeholder="Поиск..." />
             </div>
             {showSearch && searchRes.length > 0 && (
               <div className="search-drop">
@@ -162,13 +143,11 @@ export default function Layout() {
           </button>
           <button className="btn" onClick={openAdd}><i className="ti ti-plus" /><span className="btn-lbl">{ADD_LABELS[path] || 'Добавить'}</span></button>
         </div>
-
         <div className="content">
           <Outlet context={{ showToast, loadBadges }} />
         </div>
       </div>
 
-      {/* Notifications panel */}
       <div className={`notif-panel${notifOpen ? ' open' : ''}`}>
         <div className="np-head">
           <div className="np-title">Уведомления</div>
@@ -185,7 +164,6 @@ export default function Layout() {
       </div>
 
       {modal && <Modal {...modal} onClose={() => setModal(null)} onSaved={() => { setModal(null); loadBadges(); showToast('Сохранено', 'ok') }} />}
-
       <div className="toast" ref={toastRef} />
     </div>
   )
