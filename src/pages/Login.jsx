@@ -31,7 +31,7 @@ export default function Login() {
         <form onSubmit={submit}>
           <div className="fg">
             <label>Имя</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ануар" required />
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Аят" required />
           </div>
           <div className="fg">
             <label>Пароль</label>
