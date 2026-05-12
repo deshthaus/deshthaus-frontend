@@ -49,7 +49,7 @@ export default function Dashboard() {
               <div className="pc-bar" style={{ background: p.color }} />
               <div className="pi"><div className="pn">{p.name}</div><div className="pcl">{p.client_name || '—'}</div></div>
               <span className={`ps-tag ${SM[p.status] || ''}`} style={{ fontSize: 10, padding: '2px 7px' }}>{p.status}</span>
-              <div className="pb">{p.budget} ₸</div>
+              {isAdmin && <div className="pb">{p.budget} ₸</div>}
             </div>
           ))}
           {projects.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>Нет проектов</div>}
