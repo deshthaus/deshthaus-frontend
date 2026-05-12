@@ -90,9 +90,8 @@ export default function Layout() {
     <div className="app">
       <div className={`mob-ov${sidebarOpen ? ' show' : ''}`} onClick={() => setSidebarOpen(false)} />
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
-        <div className="logo-area">
-          <div className="logo-mark">DESHT<span className="logo-red">H</span>AUS<span style={{ display: 'inline-block', width: 7, height: 7, background: 'var(--red)', marginLeft: 2, transform: 'translateY(-2px)' }} /></div>
-          <div className="logo-sub">ARCHITECTS · CRM</div>
+        <div className="logo-area" style={{ padding: '16px 16px 12px' }}>
+          <img src="/logo.png" alt="Deshthaus Architects" style={{ width: '100%', maxWidth: 160, display: 'block', filter: 'brightness(0) invert(1)' }} />
         </div>
         <nav className="nav">
           {visibleNav.map((item) => (
