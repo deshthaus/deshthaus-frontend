@@ -94,7 +94,7 @@ export default function Modal({ type, data, onClose, onSaved }) {
 
           {type === 'client' && <>
             <div className="fg-row">
-              <div className="fg"><label>Имя / Название *</label><input value={form.name || ''} onChange={e => set('name', e.target.value)} placeholder="Арман Сейткали" /></div>
+              <div className="fg"><label>Имя / Название *</label><input value={form.name || ''} onChange={e => set('name', e.target.value)} placeholder="Аят Сақтаған" /></div>
               <div className="fg"><label>Тип</label>
                 <select value={form.type || 'Частный'} onChange={e => set('type', e.target.value)}>
                   {['Частный', 'Корпоративный', 'Коммерческий'].map(t => <option key={t}>{t}</option>)}
