@@ -51,6 +51,12 @@ export default function ProjectDetail() {
     )
   }
 
+  function openEditTask(task, stage_id, substage_id) {
+    setModal({ type: 'task', id: task.id, stage_id, substage_id })
+    setForm({ text: task.text, priority: task.priority || 'med', due: task.due || '' })
+    setSelectedUsers(task.assignees || (task.assigned_name ? [{ id: task.assigned_to, name: task.assigned_name }] : []))
+  }
+
   async function save() {
     setErr(''); setLoading(true)
     try {
@@ -61,13 +67,11 @@ export default function ProjectDetail() {
         if (modal.id) await api.put(`/stages/substage/${modal.id}`, form)
         else await api.post('/stages/substage', { ...form, project_id: id, stage_id: modal.stage_id })
       } else if (modal.type === 'task') {
-        await api.post('/stages/task', {
-          ...form,
-          project_id: id,
-          stage_id: modal.stage_id,
-          substage_id: modal.substage_id || null,
-          assignees: selectedUsers
-        })
+        if (modal.id) {
+          await api.put(`/stages/task/${modal.id}`, { ...form, assignees: selectedUsers })
+        } else {
+          await api.post('/stages/task', { ...form, project_id: id, stage_id: modal.stage_id, substage_id: modal.substage_id || null, assignees: selectedUsers })
+        }
       }
       await loadStages(); setModal(null); setForm({}); setSelectedUsers([])
     } catch (e) { setErr(e.response?.data?.error || 'Ошибка') }
@@ -120,7 +124,6 @@ export default function ProjectDetail() {
         )}
       </div>
 
-      {/* Progress */}
       <div className="panel" style={{ marginBottom: 14, padding: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--navy)' }}>Общий прогресс</div>
@@ -169,7 +172,9 @@ export default function ProjectDetail() {
 
           {expanded[`s${stage.id}`] && (
             <div>
-              {stage.tasks.map(task => <TaskRow key={task.id} task={task} onToggle={toggleTask} onDelete={t => del('task', t)} isAdmin={isAdmin} />)}
+              {stage.tasks.map(task => (
+                <TaskRow key={task.id} task={task} onToggle={toggleTask} onDelete={t => del('task', t)} onEdit={t => openEditTask(t, stage.id, null)} isAdmin={isAdmin} />
+              ))}
               {stage.substages.map(sub => (
                 <div key={sub.id} style={{ borderTop: '1px solid var(--border)' }}>
                   <div style={{ padding: '10px 14px 10px 28px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', background: '#fafaf8' }} onClick={() => toggle(`sb${sub.id}`)}>
@@ -196,7 +201,9 @@ export default function ProjectDetail() {
                   </div>
                   {expanded[`sb${sub.id}`] && (
                     <div>
-                      {sub.tasks.map(task => <TaskRow key={task.id} task={task} onToggle={toggleTask} onDelete={t => del('task', t)} isAdmin={isAdmin} indent />)}
+                      {sub.tasks.map(task => (
+                        <TaskRow key={task.id} task={task} onToggle={toggleTask} onDelete={t => del('task', t)} onEdit={t => openEditTask(t, stage.id, sub.id)} isAdmin={isAdmin} indent />
+                      ))}
                       {sub.tasks.length === 0 && <div style={{ padding: '8px 14px 8px 42px', fontSize: 11, color: 'var(--muted)' }}>Нет задач</div>}
                     </div>
                   )}
@@ -207,26 +214,22 @@ export default function ProjectDetail() {
         </div>
       ))}
 
-      {/* Modal */}
       {modal && (
         <div className="modal-bg" onClick={e => e.target === e.currentTarget && setModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="mh">
               <div className="mh-title">
-                {modal.type === 'stage' ? 'Новый этап' : modal.type === 'substage' ? 'Новый подэтап' : 'Новая задача'}
+                {modal.type === 'stage' ? (modal.id ? 'Редактировать этап' : 'Новый этап') :
+                 modal.type === 'substage' ? 'Новый подэтап' :
+                 modal.id ? 'Редактировать задачу' : 'Новая задача'}
               </div>
               <button className="mclose" onClick={() => setModal(null)}><i className="ti ti-x" /></button>
             </div>
             <div className="mb">
               {err && <div style={{ background: '#fdeaea', color: 'var(--red)', padding: '8px 12px', fontSize: 12, marginBottom: 12 }}>{err}</div>}
-
               {(modal.type === 'stage' || modal.type === 'substage') && (
-                <div className="fg">
-                  <label>Название *</label>
-                  <input value={form.name || ''} onChange={e => set('name', e.target.value)} placeholder={modal.type === 'stage' ? 'Дизайн' : 'ТЗ'} />
-                </div>
+                <div className="fg"><label>Название *</label><input value={form.name || ''} onChange={e => set('name', e.target.value)} placeholder={modal.type === 'stage' ? 'Дизайн' : 'ТЗ'} /></div>
               )}
-
               {modal.type === 'task' && (
                 <>
                   <div className="fg"><label>Задача *</label><input value={form.text || ''} onChange={e => set('text', e.target.value)} placeholder="Описание задачи..." /></div>
@@ -241,26 +244,21 @@ export default function ProjectDetail() {
                     </div>
                   </div>
                   <div className="fg">
-                    <label>Исполнители (можно несколько)</label>
+                    <label>Исполнители</label>
                     <div style={{ border: '1px solid var(--border)', padding: 8 }}>
                       {users.map(u => (
                         <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 4px', cursor: 'pointer' }} onClick={() => toggleUser(u)}>
                           <div style={{ width: 16, height: 16, border: `1.5px solid ${selectedUsers.find(x => x.id === u.id) ? 'var(--navy)' : 'var(--border)'}`, background: selectedUsers.find(x => x.id === u.id) ? 'var(--navy)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {selectedUsers.find(x => x.id === u.id) && <span style={{ fontSize: 10, color: '#fff' }}>✓</span>}
                           </div>
-                          <div style={{ width: 24, height: 24, background: 'var(--navy)', borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 600, color: '#fff', flexShrink: 0 }}>
+                          <div style={{ width: 24, height: 24, background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 600, color: '#fff', flexShrink: 0 }}>
                             {u.name.slice(0, 2).toUpperCase()}
                           </div>
                           <span style={{ fontSize: 13 }}>{u.name}</span>
-                          {u.role === 'admin' && <span style={{ fontSize: 9, color: 'var(--muted)' }}>Админ</span>}
                         </div>
                       ))}
                     </div>
-                    {selectedUsers.length > 0 && (
-                      <div style={{ marginTop: 6, fontSize: 11, color: 'var(--navy)' }}>
-                        Выбрано: {selectedUsers.map(u => u.name).join(', ')}
-                      </div>
-                    )}
+                    {selectedUsers.length > 0 && <div style={{ marginTop: 6, fontSize: 11, color: 'var(--navy)' }}>Выбрано: {selectedUsers.map(u => u.name).join(', ')}</div>}
                   </div>
                 </>
               )}
@@ -276,7 +274,7 @@ export default function ProjectDetail() {
   )
 }
 
-function TaskRow({ task, onToggle, onDelete, isAdmin, indent }) {
+function TaskRow({ task, onToggle, onDelete, onEdit, isAdmin, indent }) {
   const today = new Date().toISOString().slice(0, 10)
   const assignees = task.assignees || (task.assigned_name ? [{ name: task.assigned_name }] : [])
   return (
@@ -286,18 +284,19 @@ function TaskRow({ task, onToggle, onDelete, isAdmin, indent }) {
         <div className={`tt${task.done ? ' dt' : ''}`}>{task.text}</div>
         <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap', alignItems: 'center' }}>
           {task.due && <span className={`td${task.due < today && !task.done ? ' ov' : ''}`}>{task.due < today && !task.done ? '⚠ ' : ''}{task.due.split('-').reverse().join('.')}</span>}
-          {assignees.map((a, i) => (
-            <span key={i} style={{ fontSize: 10, color: 'var(--navy)', background: '#eef0fa', padding: '1px 6px' }}>{a.name}</span>
-          ))}
+          {assignees.map((a, i) => <span key={i} style={{ fontSize: 10, color: 'var(--navy)', background: '#eef0fa', padding: '1px 6px' }}>{a.name}</span>)}
         </div>
       </div>
       {task.priority === 'high' && <span className="tp-h">Срочно</span>}
       {task.priority === 'med' && <span className="tp-m">Средний</span>}
-      {isAdmin && (
+      {isAdmin && <>
+        <button className="btn-sec" style={{ padding: '3px 7px', fontSize: 11 }} onClick={() => onEdit(task)}>
+          <i className="ti ti-pencil" />
+        </button>
         <button className="btn-danger" style={{ padding: '3px 7px', fontSize: 11 }} onClick={() => onDelete(task.id)}>
           <i className="ti ti-trash" />
         </button>
-      )}
+      </>}
     </div>
   )
 }
