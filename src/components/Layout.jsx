@@ -11,7 +11,7 @@ const NAV = [
   { to: '/files', label: 'Файлы', icon: 'ti-folder' },
   { to: '/calendar', label: 'Календарь', icon: 'ti-calendar' },
   { to: '/pipeline', label: 'Воронка', icon: 'ti-chart-dots', section: 'Продажи' },
-  { to: '/finance', label: 'Финансы', icon: 'ti-coin' },
+  { to: '/finance', label: 'Финансы', icon: 'ti-coin', adminOnly: true },
   { to: '/tasks', label: 'Задачи', icon: 'ti-checkbox', section: 'Задачи', badge: 'tasks' },
   { to: '/team', label: 'Команда', icon: 'ti-users-group', section: 'Аккаунт', adminOnly: true },
   { to: '/profile', label: 'Профиль', icon: 'ti-user' },
