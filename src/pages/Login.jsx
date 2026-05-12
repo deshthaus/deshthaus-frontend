@@ -24,8 +24,13 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-box">
-        <div className="login-logo">DESHT<span style={{ color: 'var(--red)' }}>H</span>AUS</div>
-        <div className="login-sub">ARCHITECTS · CRM</div>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <img
+            src="/logo.png"
+            alt="Deshthaus Architects"
+            style={{ maxWidth: '100%', width: 260, display: 'inline-block' }}
+          />
+        </div>
         {err && <div className="login-err">{err}</div>}
         <form onSubmit={submit}>
           <div className="fg">
