@@ -90,8 +90,8 @@ export default function Layout() {
     <div className="app">
       <div className={`mob-ov${sidebarOpen ? ' show' : ''}`} onClick={() => setSidebarOpen(false)} />
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
-        <div className="logo-area" style={{ padding: '16px 16px 12px' }}>
-          <img src="/logo.png" alt="Deshthaus Architects" style={{ width: '100%', maxWidth: 160, display: 'block', filter: 'brightness(0) invert(1)' }} />
+        <div className="logo-area" style={{ padding: '14px 16px 12px', background: '#fff', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+          <img src="/logo.png" alt="Deshthaus Architects" style={{ width: '100%', maxWidth: 160, display: 'block' }} />
         </div>
         <nav className="nav">
           {visibleNav.map((item) => (
