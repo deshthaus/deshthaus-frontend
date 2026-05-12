@@ -9,6 +9,12 @@ export default function Finance() {
   useEffect(() => { load() }, [])
   async function load() { const r = await api.get('/finance'); setData(r.data) }
 
+  async function del(id, label) {
+    if (!confirm(`Удалить транзакцию «${label}»?`)) return
+    await api.delete(`/finance/${id}`)
+    load()
+  }
+
   const fmt = n => Number(Math.abs(n)).toLocaleString('ru')
 
   return (
@@ -30,7 +36,12 @@ export default function Finance() {
               <div className="fr-l">{r.label}</div>
               {r.project_name && <div style={{ fontSize: 10, color: 'var(--muted)' }}>{r.project_name}</div>}
             </div>
-            <div className={`fr-v${r.amount >= 0 ? ' inc' : ' exp'}`}>{r.amount >= 0 ? '+' : '−'}{fmt(r.amount)} ₸</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className={`fr-v${r.amount >= 0 ? ' inc' : ' exp'}`}>{r.amount >= 0 ? '+' : '−'}{fmt(r.amount)} ₸</div>
+              <button className="btn-danger" style={{ padding: '3px 7px', fontSize: 11 }} onClick={() => del(r.id, r.label)}>
+                <i className="ti ti-trash" />
+              </button>
+            </div>
           </div>
         ))}
         {(!data.rows || data.rows.length === 0) && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>Нет транзакций</div>}
