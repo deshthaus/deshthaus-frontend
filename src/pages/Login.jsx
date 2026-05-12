@@ -2,15 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const Logo = () => (
-  <svg viewBox="0 0 260 56" xmlns="http://www.w3.org/2000/svg" style={{ width: 240, display: 'block', margin: '0 auto' }}>
-    <text y="42" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="42" letterSpacing="1.5" fill="#1a1f5e">DESHT</text>
-    <text x="178" y="42" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="42" letterSpacing="1.5" fill="#1a1f5e">H</text>
-    <rect x="204" y="6" width="11" height="11" fill="#FF6B00"/>
-    <text x="219" y="42" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="42" letterSpacing="1.5" fill="#1a1f5e">AUS</text>
-  </svg>
-)
-
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -34,7 +25,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-box">
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <Logo />
+          <img src="/logo.png" alt="Deshthaus Architects" style={{ width: 240, maxWidth: '100%' }} />
         </div>
         {err && <div className="login-err">{err}</div>}
         <form onSubmit={submit}>
