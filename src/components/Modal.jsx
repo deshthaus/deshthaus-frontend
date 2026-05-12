@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
 
-const STATUS_OPTS = ['Дизайн', 'Строительство', 'Завершён', 'Пауза']
+const STATUS_OPTS = ['Дизайн', 'Строительство', 'Комплектация', 'Авторский надзор', 'Завершён', 'Пауза']
 const STAGE_OPTS = ['Обращение', 'Переговоры', 'КП отправлено', 'Договор']
 const COLORS = ['#1a1f5e', '#e8401c', '#2a8a5a', '#c07000', '#7a7a8c', '#5a2a8a']
 
