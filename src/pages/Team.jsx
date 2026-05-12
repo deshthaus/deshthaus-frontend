@@ -90,7 +90,7 @@ export default function Team() {
             </div>
             <div className="mb">
               {err && <div style={{ background: '#fdeaea', color: 'var(--red)', padding: '8px 12px', fontSize: 12, marginBottom: 12 }}>{err}</div>}
-              <div className="fg"><label>Имя *</label><input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ануар" /></div>
+              <div className="fg"><label>Имя *</label><input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Аят" /></div>
               <div className="fg">
                 <label>{modal === 'add' ? 'Пароль *' : 'Новый пароль (оставьте пустым чтобы не менять)'}</label>
                 <input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Минимум 4 символа" />
