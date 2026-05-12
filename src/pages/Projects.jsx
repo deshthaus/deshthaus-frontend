@@ -17,6 +17,12 @@ export default function Projects() {
   useEffect(() => { load() }, [])
   async function load() { const r = await api.get('/projects'); setProjects(r.data) }
 
+  async function del(id, name) {
+    if (!confirm(`Удалить проект «${name}»?`)) return
+    await api.delete(`/projects/${id}`)
+    setProjects(ps => ps.filter(p => p.id !== id))
+  }
+
   const list = filter === 'all' ? projects : projects.filter(p => p.status === filter)
 
   return (
@@ -31,11 +37,14 @@ export default function Projects() {
             <div className="pi"><div className="pn">{p.name}</div><div className="pcl">{p.client_name || '—'}</div></div>
             <span className={`ps-tag ${SM[p.status] || ''}`} style={{ fontSize: 10, padding: '2px 7px' }}>{p.status}</span>
             {isAdmin && <div className="pb">{p.budget} ₸</div>}
-            {isAdmin && (
+            {isAdmin && <>
               <button className="btn-sec" style={{ padding: '4px 8px', fontSize: 11 }} onClick={() => setModal({ type: 'project', data: p, onSaved: () => { setModal(null); load() } })}>
                 <i className="ti ti-pencil" />
               </button>
-            )}
+              <button className="btn-danger" style={{ padding: '4px 8px', fontSize: 11 }} onClick={() => del(p.id, p.name)}>
+                <i className="ti ti-trash" />
+              </button>
+            </>}
           </div>
         ))}
         {list.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>Нет проектов</div>}

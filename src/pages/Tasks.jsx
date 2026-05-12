@@ -14,7 +14,13 @@ export default function Tasks() {
 
   async function toggle(id, done) {
     await api.patch(`/tasks/${id}/toggle`)
-    setTasks(ts => ts.map(t => t.id === id ? { ...t, done: done ? 0 : 1 } : t))
+    setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !done } : t))
+  }
+
+  async function del(id, text) {
+    if (!confirm(`Удалить задачу «${text}»?`)) return
+    await api.delete(`/tasks/${id}`)
+    setTasks(ts => ts.filter(t => t.id !== id))
   }
 
   const list = tasks.filter(t => filter === 'all' ? true : filter === 'done' ? t.done : !t.done)
@@ -41,6 +47,9 @@ export default function Tasks() {
             {t.priority === 'med' && <span className="tp-m">Средний</span>}
             <button className="btn-sec" style={{ padding: '3px 7px', fontSize: 11 }} onClick={() => setModal({ type: 'task', data: t, onSaved: () => { setModal(null); load() } })}>
               <i className="ti ti-pencil" />
+            </button>
+            <button className="btn-danger" style={{ padding: '3px 7px', fontSize: 11 }} onClick={() => del(t.id, t.text)}>
+              <i className="ti ti-trash" />
             </button>
           </div>
         ))}

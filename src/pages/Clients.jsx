@@ -14,11 +14,27 @@ export default function Clients() {
 
   function initials(name) { return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) }
 
+  async function del(e, id, name) {
+    e.stopPropagation()
+    if (!confirm(`Удалить клиента «${name}»?`)) return
+    await api.delete(`/clients/${id}`)
+    setClients(cs => cs.filter(c => c.id !== id))
+  }
+
   return (
     <div>
       <div className="cg">
         {clients.map(c => (
-          <div key={c.id} className="cc" onClick={() => isAdmin && setModal({ type: 'client', data: c, onSaved: () => { setModal(null); load() } })}>
+          <div key={c.id} className="cc" style={{ position: 'relative' }} onClick={() => isAdmin && setModal({ type: 'client', data: c, onSaved: () => { setModal(null); load() } })}>
+            {isAdmin && (
+              <button
+                className="btn-danger"
+                style={{ position: 'absolute', top: 8, right: 8, padding: '3px 6px', fontSize: 11 }}
+                onClick={e => del(e, c.id, c.name)}
+              >
+                <i className="ti ti-trash" />
+              </button>
+            )}
             <div className="c-av" style={{ background: c.color || '#1a1f5e' }}>{initials(c.name)}</div>
             <div className="c-name">{c.name}</div>
             <div className="c-type">{c.type}</div>
@@ -29,7 +45,7 @@ export default function Clients() {
             </>}
           </div>
         ))}
-        {clients.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)' }}>Нет клиентов</div>}
+        {clients.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--muted)' }}>Нет клиентов. Добавьте первого!</div>}
       </div>
       {modal && <Modal {...modal} onClose={() => setModal(null)} />}
     </div>
