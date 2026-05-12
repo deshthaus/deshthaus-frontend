@@ -90,8 +90,13 @@ export default function Layout() {
     <div className="app">
       <div className={`mob-ov${sidebarOpen ? ' show' : ''}`} onClick={() => setSidebarOpen(false)} />
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
-        <div className="logo-area" style={{ padding: '14px 16px 12px', background: '#fff', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-          <img src="/logo.png" alt="Deshthaus Architects" style={{ width: '100%', maxWidth: 160, display: 'block' }} />
+        <div className="logo-area" style={{ padding: '18px 16px 14px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+          <svg viewBox="0 0 210 38" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', maxWidth: 180, display: 'block' }}>
+            <text y="28" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="28" letterSpacing="1" fill="#ffffff">DESHT</text>
+            <text x="119" y="28" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="28" letterSpacing="1" fill="#ffffff">H</text>
+            <rect x="138" y="4" width="8" height="8" fill="#FF6B00"/>
+            <text x="147" y="28" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="28" letterSpacing="1" fill="#ffffff">AUS</text>
+          </svg>
         </div>
         <nav className="nav">
           {visibleNav.map((item) => (
